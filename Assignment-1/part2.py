@@ -28,5 +28,7 @@ test_x=data[["X1 transaction date", "X2 house age", "X3 distance to the nearest 
 prediction = model.predict(test_x)
 
 mse = skm.mean_squared_error(test_y, prediction)
+r_square = skm.r2_score(test_y, prediction)
 
-print(mse)
+print(f"r squared value on the test data: {r_square}")
+print(f"mean squared error on the test data: {mse}")

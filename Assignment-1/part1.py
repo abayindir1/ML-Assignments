@@ -24,7 +24,7 @@ def ssr_gradient(x, y, w):
 
 # generic method to minimize ANY convex function in the world
 def gradient_descent(
-     gradient, x, y, start, learn_rate=0.00015, n_iter=50, tolerance=1e-06
+     gradient, x, y, start, learn_rate=0.000015, n_iter=50, tolerance=1e-06
  ):
   vector = start
   for _ in range(n_iter):
@@ -53,4 +53,14 @@ test_y= data["Y house price of unit area"].values
 prediction = test_predictions = trained[0] + trained[1] * test_x1 + trained[2] * test_x2 + trained[3] * test_x3 + trained[4] * test_x4
 # print(prediction)
 test_mse = ((y - prediction) ** 2).mean()
+
+# getting tss and rss
+mean = y.mean()
+tss = ((y-mean)**2).sum()
+rss = ((y-prediction)**2).sum()
+print(f"tss on the test data:{tss}")
+print(f"rss on the test data:{rss}")
+# r square value
+r_square = 1-(rss/tss)
+print(f"r squared value on the test data{r_square}")
 print(f"mean squared error on the test data: {test_mse}")
