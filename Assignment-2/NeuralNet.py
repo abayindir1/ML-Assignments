@@ -21,12 +21,34 @@ class NeuralNet:
 
 
 
-    # TODO: Write code for pre-processing the dataset, which would include
-    # standardization, normalization,
-    #   categorical to numerical, etc
+    # TODO: Write code for pre-processing the dataset, which would include standardization, normalization, categorical to numerical, etc
     def preprocess(self):
         self.processed_data = self.raw_input
+        # print(type(self.processed_data))
 
+        # drop null values
+        self.processed_data.dropna(inplace=True)
+        # remove duplicates
+        self.processed_data.drop_duplicates(inplace=True)
+        # categorical to numerical
+        if "class" in self.processed_data:
+            class_map = {}
+            unique_val = self.processed_data["class"].unique()
+            for index, class_label in enumerate(unique_val):
+                class_map[class_label] = index
+
+        numerical_columns = ["sepal length", "sepal width", "petal length", "petal width"]
+        # normalize by turning values to a specific range, 0-1
+        for col in numerical_columns:
+            # print(self.processed_data[col])
+            min = self.processed_data[col].min()
+            max = self.processed_data[col].max()
+            self.processed_data[col] = (self.processed_data[col] - min) / (max - min)
+        # standardization
+        for col in numerical_columns:
+            mean = self.processed_data[col].mean()
+            std = self.processed_data[col].std()
+            self.processed_data[col] = (self.processed_data[col] - mean) / std
         return 0
 
     # TODO: Train and evaluate models for all combinations of parameters
@@ -66,6 +88,6 @@ class NeuralNet:
 
 
 if __name__ == "__main__":
-    neural_network = NeuralNet("train.csv") # put in path to your file
+    neural_network = NeuralNet("iris.csv") # put in path to your file
     neural_network.preprocess()
     neural_network.train_evaluate()
