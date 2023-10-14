@@ -12,6 +12,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import sklearn.neural_network as nn
+import sklearn.metrics
 
 
 class NeuralNet:
@@ -36,6 +38,7 @@ class NeuralNet:
             unique_val = self.processed_data["class"].unique()
             for index, class_label in enumerate(unique_val):
                 class_map[class_label] = index
+            self.processed_data["class"]=self.processed_data["class"].map(class_map)
 
         numerical_columns = ["sepal length", "sepal width", "petal length", "petal width"]
         # normalize by turning values to a specific range, 0-1
@@ -67,27 +70,53 @@ class NeuralNet:
         X_train, X_test, y_train, y_test = train_test_split(
             X, y)
 
-        # Below are the hyperparameters that you need to use for model
-        #   evaluation
+        # Below are the hyperparameters that you need to use for model evaluation
         activations = ['logistic', 'tanh', 'relu']
         learning_rate = [0.01, 0.1]
         max_iterations = [100, 200] # also known as epochs
         num_hidden_layers = [2, 3]
 
-        # Create the neural network and be sure to keep track of the performance
-        #   metrics
+        # Create the neural network and be sure to keep track of the performance metrics
 
-        # Plot the model history for each model in a single plot
-        # model history is a plot of accuracy vs number of epochs
-        # you may want to create a large sized plot to show multiple lines
-        # in a same figure.
+        # Plot the model history for each model in a single plot model history is a plot of accuracy vs number of epochs you may want to create a large sized plot to show multiple lines in a same figure.
 
+        results = []
+        for activation in activations:
+            for lr in learning_rate:
+                for mi in max_iterations:
+                    for nhl in num_hidden_layers:
+                        model = nn.MLPClassifier(hidden_layer_sizes=(100,)*nhl, activation=activation, learning_rate_init=lr, max_iter=mi)
+                        model.fit(X_train, y_train)
+
+                        # mse
+                        train_predictions = model.predict(X_train)
+                        test_predictions = model.predict(X_test)
+                        train_mse =sklearn.metrics.mean_squared_error(y_train, train_predictions)
+                        test_mse = sklearn.metrics.mean_squared_error(y_test, test_predictions)
+
+                        # predictions
+                        train_accuracy = sklearn.metrics.accuracy_score(y_train, model.predict(X_train))
+                        test_accuracy = sklearn.metrics.accuracy_score(y_test, model.predict(X_test))
+
+                        results.append({
+                            "activation": activation,
+                            "learning rate": lr,
+                            "max iterations": mi,
+                            "number of hidden layers": nhl,
+                            "train accuracy": train_accuracy,
+                            "test accuracy": test_accuracy,
+                            "train MSE": train_mse,
+                            "test MSE": test_mse
+                        })
+
+        results_data_frame = pd.DataFrame(results)
+        print(results_data_frame)
         return 0
 
 
 
 
 if __name__ == "__main__":
-    neural_network = NeuralNet("iris.csv") # put in path to your file
+    neural_network = NeuralNet("https://raw.githubusercontent.com/abayindir1/ML-Assignments/master/Assignment-2/iris.csv") # put in path to your file
     neural_network.preprocess()
     neural_network.train_evaluate()
