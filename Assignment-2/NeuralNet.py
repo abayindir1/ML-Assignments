@@ -8,12 +8,13 @@
 #
 #####################################################################################################################
 
-
+# data: https://archive.ics.uci.edu/dataset/53/iris
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import sklearn.neural_network as nn
 import sklearn.metrics
+import matplotlib.pyplot as plt
 
 
 class NeuralNet:
@@ -85,7 +86,7 @@ class NeuralNet:
             for lr in learning_rate:
                 for mi in max_iterations:
                     for nhl in num_hidden_layers:
-                        model = nn.MLPClassifier(hidden_layer_sizes=(100,)*nhl, activation=activation, learning_rate_init=lr, max_iter=mi)
+                        model = nn.MLPClassifier(hidden_layer_sizes=(100,)*nhl, activation=activation, learning_rate_init=lr, max_iter=500)
                         model.fit(X_train, y_train)
 
                         # mse
@@ -108,9 +109,19 @@ class NeuralNet:
                             "train MSE": train_mse,
                             "test MSE": test_mse
                         })
+                        actual_epochs = len(model.loss_curve_)
+                        # plotting the model to be shown
+                        plt.plot(range(1, actual_epochs + 1), model.loss_curve_, label=f'{activation}, lr={lr}, epochs={actual_epochs}, layers={nhl}')
+
+        plt.title('Model Training History')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy')
+        plt.legend()
+        plt.grid(True)
 
         results_data_frame = pd.DataFrame(results)
         print(results_data_frame)
+        plt.show()
         return 0
 
 
