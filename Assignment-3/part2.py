@@ -1,7 +1,7 @@
 import requests
 import re
-import numpy as np
 import random
+import pandas as pd
 
 url = "https://raw.githubusercontent.com/abayindir1/ML-Assignments/main/Assignment-3/NBChealth.txt"
 response = requests.get(url)
@@ -42,27 +42,26 @@ def jDistance(t1, t2):
     return 1 - (itrs/union)
 
 # perform kmeans clustering
-def kmeans(data, k, maxIterations=50):
+def kmeans(data, k):
 
     # initialize centroids randomly
     centroids = random.sample(data, k)
 
-    for _ in range(maxIterations):
-        print(f"Iteration {_ + 1}/{maxIterations}")
+
         # assigning data points to centroids
-        clusters = {}
-        for i in range(k):
-            clusters[i] = []
+    clusters = {}
+    for i in range(k):
+        clusters[i] = []
 
         # assign data points to the nearest centroid
-        for tweet in data:
-            distances = []
-            # distances between the tweet and each centroid
-            for centroid in centroids:
-                distances.append(jDistance(tweet, centroid))
-            # get index of the nearest centroid
-            nearestCentroid = distances.index(min(distances))
-            clusters[nearestCentroid].append(tweet)
+    for tweet in data:
+        distances = []
+         # distances between the tweet and each centroid
+        for centroid in centroids:
+            distances.append(jDistance(tweet, centroid))
+        # get index of the nearest centroid
+        nearestCentroid = distances.index(min(distances))
+        clusters[nearestCentroid].append(tweet)
 
         # update the centroids based on the clusters
         newCentroids = []
@@ -84,23 +83,35 @@ def kmeans(data, k, maxIterations=50):
 
 kValues = [3, 5, 7, 10, 15]
 
+values_of_k_list = []
+sse_error_list = []
+size_of_cluster_list = []
+
 for k in kValues:
     # run kmeans for tweets
     clusters, centroids = kmeans(processedTweets, k)
 
-    # salculate sum of squared errors
+    # calculate sum of squared errors
     sse = 0
+    sizes = []
+
     for centroid, cluster in zip(centroids, clusters.values()):
-        clusterErr = 0
+        cluster_err = 0
         for tweet in cluster:
-            clusterErr += jDistance(tweet, centroid)
-        sse += clusterErr
-    
-    # print results
-    print(f"\n\nValue of K: {k} | SSE: {sse}")
-    for i, (centroid, cluster) in enumerate(zip(centroids, clusters.values())):
-        print(f"Cluster {i + 1} Size: {len(cluster)}")
-        print(f"Centroid: {centroid}")
-        print("Sample Tweets:")
-        for tweet in cluster[:3]:
-            print(f" - {tweet}")
+            cluster_err += jDistance(tweet, centroid)
+        sse += cluster_err
+        sizes.append(len(cluster))
+
+    # Append results to lists
+    values_of_k_list.append(k)
+    sse_error_list.append(sse)
+    size_of_cluster_list.append(sizes)
+# print results
+results_table = pd.DataFrame()
+results_table["Value_of_K"] = values_of_k_list
+results_table["SSE_Error"] = sse_error_list
+results_table["Size_of_Clusters"] = size_of_cluster_list
+results_table.index = results_table.index + 1
+
+# Print the DataFrame
+print(results_table)
