@@ -42,11 +42,13 @@ def jDistance(t1, t2):
     return 1 - (itrs/union)
 
 # perform kmeans clustering
-def kmeans(data, k, maxIterations=100):
+def kmeans(data, k, maxIterations=50):
+
     # initialize centroids randomly
     centroids = random.sample(data, k)
 
     for _ in range(maxIterations):
+        print(f"Iteration {_ + 1}/{maxIterations}")
         # assigning data points to centroids
         clusters = {}
         for i in range(k):
